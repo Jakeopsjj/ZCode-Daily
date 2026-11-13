@@ -33,6 +33,17 @@ jobs:
       - name: Install deps
         run: pip install -r requirements.txt
 
+      - name: Restore state store
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            zcode_cn_devices.json
+            zcode_cn_claim_ledger.json
+            zcode_intl_devices.json
+            zcode_intl_claim_ledger.json
+          key: zcode-daily-store-${{ github.run_id }}
+          restore-keys: |
+            zcode-daily-store-
       - name: Run ZCode CN
         env:
           ZCODE_CN_TOKENS: ${{ secrets.ZCODE_CN_TOKENS }}
@@ -52,4 +63,15 @@ jobs:
           DINGTALK_WEBHOOK: ${{ secrets.DINGTALK_WEBHOOK }}
           DINGTALK_SECRET: ${{ secrets.DINGTALK_SECRET }}
         run: python zcode_intl_daily.py
+
+      - name: Save state store
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            zcode_cn_devices.json
+            zcode_cn_claim_ledger.json
+            zcode_intl_devices.json
+            zcode_intl_claim_ledger.json
+          key: zcode-daily-store-${{ github.run_id }}
 
